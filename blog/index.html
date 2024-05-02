@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <meta charset="utf-8" />
+        <title>Trabalho de Sistemas Distribuídos I</title>
+        <style>
+            * {
+                font-family: sans-serif;
+            }
+
+            table {
+                border-collapse: collapse;
+                margin: 20px;
+            }
+
+            td, th {
+                border: 1px solid #000;
+                text-align: center;
+                padding: 5px;
+            }
+
+            p {
+                width: 75%;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Relatório - Trabalho de Sistemas Distribuídos I</h1>
+        <h2>David Gomes</h2>
+
+        <p>
+            O trabalho consiste na implementação do detector de falhas VCube, versão 2, executando simulações utilizando o SMPL, com falhas/recuperações de processos.
+        </p>
+
+        <h3>Desenvolvimento do trabalho</h3>
+        <p>
+        Primeiramente, foi utilizados os arquivos base do trabalho 0 (implementação do VRing) para o desenvolvimento do VCube, ou seja, <i>smpl.c</i>, <i>rand.c</i> e o <i>tempo.c</i>, renomeado para <i>vcube.c</i> e adaptado. Foi utilizado o arquivo <i>cisj.c</i>, disponibilizado no site da disciplina, para a função <i>c(i, s)</i>, usada pelo VCube para descobrir os processos de um cluster.
+        </p>
+        <p>
+        Assim, em <i>vcube.c</i> foi criada a função <i>first_correct(int j, ints)</i>, que retorna o primeiro processo correto em <i>c(j, s)</i> e -1 caso todos os processos neste cluster estejam falhos.
+        </p>
+        <p>
+        As rotinas de TEST, FAULT e RECOVERY, no laço principal, foram adaptadas para o algoritmo do VCube V2. A rotina de TEST, faz a iteração em <b>s</b>, de 1 a log2(n), em que <b>n</b> é o número de processos. Para cada <b>s</b>, é computado os processos no cluster <i>c(token, s)</i>, e para cada processo neste cluster <b>j</b>, é verificado se o testador é o primeiro processo correto no cluster <i>c(j, s)</i>, caso for, testa <b>j</b>, senão, ignora.
+        </p>
+        <p>
+        Ao testar <b>j</b>, caso esteja falho, atualiza o estado em STATE, incrementando o valor inteiro se for par. Se estiver correto, incrementa o valor em STATE se for ímpar, além de atualizar os outros valores de STATE mais atuais, as "novidades".
+        </p>
+
+        <h3>Estrutura do código</h3>
+        <p>
+            A estrutura do código é divida em arquivos C (.c e .h), na seguinte forma:
+            <table>
+                <tr>
+                    <th>Arquivo</th>
+                    <th>Descrição</th>
+                </tr>
+                <tr>
+                    <td><a target="_blank" href="code/vcube.c.txt">vcube.c</a></td>
+                    <td>Arquivo principal, define os processos, seus estados, e o laço com a simulação do VCube V2, com <i>fault/recovery</i> de alguns processos.</td>
+                </tr>
+                <tr>
+                    <td><a target="_blank" href="code/cisj.c.txt">cisj.c</a></td>
+                    <td>Possui a função c(i, s), usada pelo VCube.</td>
+                </tr>
+                <tr>
+                    <td><a target="_blank" href="code/cisj.h.txt">cisj.h</a></td>
+                    <td>Header do <i>cisj.c</i>.</td>
+                </tr>
+                <tr>
+                    <td><a target="_blank" href="code/smpl.c.txt">smpl.c</a></td>
+                    <td>SMPL.</td>
+                </tr>
+                <tr>
+                    <td><a target="_blank" href="code/smpl.h.txt">smpl.h</a></td>
+                    <td>Header do SMPL.</td>
+                </tr>
+                <tr>
+                    <td><a target="_blank" href="code/rand.c.txt">rand.c</a></td>
+                    <td>Usado pelo SMPL.</td>
+                </tr>
+                <tr>
+                    <td><a target="_blank" href="code/makefile.txt">makefile</a></td>
+                    <td>Arquivo que descreve compilação/ligação do projeto para criação do executável <i>vcube</i>.</td>
+                </tr>
+            </table>
+
+            <h4>Argumentos de execução</h4>
+            Primeiramente, compile o projeto com <b>make</b>. O executável <i>vcube</i> será criado, para o qual os argumentos são passados, sendo estes:
+            <table>
+                <tr>
+                    <th>Argumento</th>
+                    <th>Descrição</th>
+                </tr>
+                <tr>
+                    <td>num procs</td>
+                    <td>Especifica o número de processos na simulação do VCube V2, deve ser potência de dois.</td>
+                </tr>
+                <tr>
+                    <td>max time</td>
+                    <td>Indica o tempo total para executar a simulação, é considerado que os testes são executados a cada 30 unidades de tempo.</td>
+                </tr>
+                </tr>
+            </table>
+            </ul>
+        </p>
+
+        <h3>Logs</h3>
+        <p>
+            Esta seção possui <i>logs</i> de exemplos de execução.
+            <h4>N: 4, max time: 90, processo 1 falha e recupera.</h4>
+            <ul>
+                <li><a target="_blank" href="logs/log_4_90_fault1.txt">Arquivo.</a></li>
+            </ul>
+
+            <h4>N: 4, max time: 90, processo 1 falha e <b>não</b> recupera.</h4>
+            <ul>
+                <li><a target="_blank" href="logs/log_4_90_fault1_noreco.txt">Arquivo.</a></li>
+            </ul>
+
+            <h4>N: 8, max time: 210, o cluster direito falha e recupera (processos 4, 5, 6 e 7).</h4>
+            <ul>
+                <li><a target="_blank" href="logs/log_8_210_half_faultreco.txt">Arquivo.</a></li>
+            </ul>
+
+            <h4>N: 8, max time: 210, processos 1, 2, 4 e 7 falham e recuperam.</h4>
+            <ul>
+                <li><a target="_blank" href="logs/log_8_210_faultreco_1247.txt">Arquivo.</a></li>
+            </ul>
+        </p>
+    </body>
+</html>
